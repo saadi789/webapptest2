@@ -76,9 +76,9 @@ namespace PhoneBookTestApp
 
         public static bool InsertPerson(string name, string number, string address)
         {
+            var dbConnection = new SQLiteConnection("Data Source= MyDatabase.sqlite;Version=3;");
             try
             {
-                var dbConnection = new SQLiteConnection("Data Source= MyDatabase.sqlite;Version=3;");
                 dbConnection.Open();
                 var command =
                     new SQLiteCommand(
@@ -92,6 +92,10 @@ namespace PhoneBookTestApp
             catch
             {
                 return false;
+            }
+            finally
+            {
+                dbConnection.Close();
             }
         }
 
