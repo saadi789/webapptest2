@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Data.SQLite;
+using System.Linq;
+using System.Data.SQLite.Linq;
+using System.Collections.Generic;
 
 namespace PhoneBookTestApp
 {
@@ -44,7 +47,6 @@ namespace PhoneBookTestApp
         public static SQLiteConnection GetConnection()
         {
             var dbConnection = new SQLiteConnection("Data Source= MyDatabase.sqlite;Version=3;");
-            dbConnection.Open();
 
             return dbConnection;
         }
@@ -71,5 +73,45 @@ namespace PhoneBookTestApp
                 dbConnection.Close();
             }
         }
+
+        public static bool InsertPerson(string name, string number, string address)
+        {
+            try
+            {
+                var dbConnection = new SQLiteConnection("Data Source= MyDatabase.sqlite;Version=3;");
+                dbConnection.Open();
+                var command =
+                    new SQLiteCommand(
+                        $"INSERT INTO PHONEBOOK (NAME, PHONENUMBER, ADDRESS) "
+                        +$"VALUES('{name}','{number}', '{address}')",
+                        dbConnection);
+                command.ExecuteNonQuery();
+                dbConnection.Close();
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public static SQLiteDataReader Query(string selectCommand,
+    params KeyValuePair<string, object>[] parameters)
+        {
+            var connection = GetConnection();
+            var command = new SQLiteCommand(selectCommand, connection);
+
+            if (parameters != null)
+            {
+                foreach (var p in parameters)
+                    command.Parameters.Add(new SQLiteParameter(p.Key, p.Value));
+            }
+
+            connection.Open();
+            var result = command.ExecuteReader();
+            return result;
+        }
+
+        
     }
 }
